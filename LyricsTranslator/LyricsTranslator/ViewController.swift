@@ -8,6 +8,7 @@ import AVFoundation
 import HealthKit
 import Foundation
 import CoreLocation
+import MediaPlayer
 import WatchConnectivity
 //dont have to uncletsocket
 
@@ -21,7 +22,7 @@ class ViewController: UIViewController, WCSessionDelegate, UIImagePickerControll
                                                     // whose idea was this
     
     
-    let socket = SocketIOClient(socketURL: NSURL(string: "http://f19a3639.ngrok.io")!)
+    let socket = SocketIOClient(socketURL: NSURL(string: "http://d1b12b03.ngrok.io")!)
     
     @IBOutlet weak var songTextField: UITextField!
     
@@ -36,6 +37,43 @@ class ViewController: UIViewController, WCSessionDelegate, UIImagePickerControll
         socket.emit("song", songName!, artistName!)
         
         print("song name: " + songName! + " by " + artistName!)
+        
+        // play the song
+//        // All
+//        let mediaItems = MPMediaQuery.songsQuery().items
+//        // Or you can filter on various property
+//        // Like the Genre for example here
+//        var query = MPMediaQuery.songsQuery()
+//        let predicateByName = MPMediaPropertyPredicate(value: "21 Guns", forProperty: MPMediaItemPropertyTitle, comparisonType: .EqualTo)
+//        query.filterPredicates = NSSet(object: predicateByName) as? Set<MPMediaPredicate>
+//        
+//        let mediaCollection = MPMediaItemCollection(items: mediaItems!)
+//        
+//        let player = MPMusicPlayerController.systemMusicPlayer()
+//        player.setQueueWithItemCollection(mediaCollection)
+//        
+//        player.play()
+
+        let query = MPMediaQuery.songsQuery()
+        let isPresent = MPMediaPropertyPredicate(value: songName, forProperty: MPMediaItemPropertyTitle, comparisonType: .EqualTo)
+        query.addFilterPredicate(isPresent)
+        
+        let result = query.collections
+        
+        if result!.count == 0 {
+            print("not found")
+            return
+        }
+        
+        
+        let controller = MPMusicPlayerController.systemMusicPlayer()
+        let item = result![0]
+        
+        controller.setQueueWithItemCollection(item)
+        controller.prepareToPlay()
+        controller.play()
+        
+
         
     }
     
